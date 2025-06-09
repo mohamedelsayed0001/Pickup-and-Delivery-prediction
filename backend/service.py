@@ -60,7 +60,7 @@ class DeliveryData(BaseModel):
     accept_gps_lat: float
     delivery_gps_lng: float
     delivery_gps_lat: float
-    ds: int  # keeping as str for now
+    ds: int  
     delivery_day: int
     delivery_hour: int
     delivery_weekday: int
