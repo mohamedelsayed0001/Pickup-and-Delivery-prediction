@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import lightgbm as lgb
 import joblib  
+import math 
 import random
 
 app = FastAPI()
@@ -23,6 +24,8 @@ def health_check():
 
 # ----- Pickup Prediction -----
 model = joblib.load("models/pickup_model_lightgbm.pkl") 
+delivery_model = joblib.load("models/delivery_model_linearsvr .pkl") 
+
 class PickupData(BaseModel):
     pickup_distance_km: float
     pickup_hour: int
@@ -39,7 +42,7 @@ def predict_pickup(data: PickupData):
             data.time_diff
         ]]
         prediction = model.predict(features)
-        predicted_time = prediction[0] *60
+        predicted_time = prediction[0] 
         print(predicted_time)
         return {"prediction": predicted_time}
     except Exception as e:
@@ -48,9 +51,8 @@ def predict_pickup(data: PickupData):
 # ----- Delivery Prediction -----
 
 class DeliveryData(BaseModel):
-    order_id: str
+    order_id: int
     region_id: int
-    city: int
     courier_id: int
     lng: float
     lat: float
@@ -60,18 +62,39 @@ class DeliveryData(BaseModel):
     accept_gps_lat: float
     delivery_gps_lng: float
     delivery_gps_lat: float
-    ds: int  
+    ds: int
     delivery_day: int
     delivery_hour: int
-    delivery_weekday: int
-    delivery_weekend: int
+    location_sum_delivery: float
+    time_difference_delivery: float
+    region_aoi_product_delivery: int
+
 
 @app.post("/predict-delivery")
 def predict_delivery(data: DeliveryData):
     try:
-        # Dummy logic: Replace this with model inference
-        gps_diff = abs(data.delivery_gps_lng - data.accept_gps_lng) + abs(data.delivery_gps_lat - data.accept_gps_lat)
-        predicted_time = gps_diff * 200 + data.delivery_hour * 1.5 + data.delivery_weekend * 5
-        return {"prediction": predicted_time}
+        
+        features = [[
+            data.order_id,
+            data.region_id,
+            data.courier_id,
+            data.lng,
+            data.lat,
+            data.aoi_id,
+            data.aoi_type,
+            data.accept_gps_lng,
+            data.accept_gps_lat,
+            data.delivery_gps_lng,
+            data.delivery_gps_lat,
+            data.ds,
+            data.delivery_day,
+            data.delivery_hour,
+            data.location_sum_delivery,
+            data.time_difference_delivery,
+            data.region_aoi_product_delivery
+        ]]
+
+        prediction = delivery_model.predict(features)
+        return {"prediction":  math.fabs(float(prediction[0]))}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

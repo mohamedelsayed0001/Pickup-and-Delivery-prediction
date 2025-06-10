@@ -12,24 +12,25 @@ const App = () => {
   });
 
   const [deliveryData, setDeliveryData] = useState({
-    order_id: '',
-    region_id: '',
-    city: '',
-    courier_id: '',
-    lng: '',
-    lat: '',
-    aoi_id: '',
-    aoi_type: '',
-    accept_gps_lng: '',
-    accept_gps_lat: '',
-    delivery_gps_lng: '',
-    delivery_gps_lat: '',
-    ds: '',
-    delivery_day: '',
-    delivery_hour: '',
-    delivery_weekday: '',
-    delivery_weekend: ''
-  });
+  order_id: '',
+  region_id: '',
+  courier_id: '',
+  lng: '',
+  lat: '',
+  aoi_id: '',
+  aoi_type: '',
+  accept_gps_lng: '',
+  accept_gps_lat: '',
+  delivery_gps_lng: '',
+  delivery_gps_lat: '',
+  ds: '',
+  delivery_day: '',
+  delivery_hour: '',
+  location_sum_delivery: '',  // Required by model
+  time_difference_delivery: '',  // Required by model
+  region_aoi_product_delivery: ''  // Required by model
+});
+
 
   const [pickupResult, setPickupResult] = useState(null);
   const [deliveryResult, setDeliveryResult] = useState(null);
@@ -123,9 +124,8 @@ const App = () => {
 
   const handleDeliverySubmit = () => {
   const formData = {
-    order_id: deliveryData.order_id,
+    order_id: parseInt(deliveryData.order_id),
     region_id: parseInt(deliveryData.region_id),
-    city: parseInt(deliveryData.city),
     courier_id: parseInt(deliveryData.courier_id),
     lng: parseFloat(deliveryData.lng),
     lat: parseFloat(deliveryData.lat),
@@ -138,9 +138,10 @@ const App = () => {
     ds: parseInt(deliveryData.ds),
     delivery_day: parseInt(deliveryData.delivery_day),
     delivery_hour: parseInt(deliveryData.delivery_hour),
-    delivery_weekday: parseInt(deliveryData.delivery_weekday),
-    delivery_weekend: parseInt(deliveryData.delivery_weekend)
-  };
+    location_sum_delivery: parseFloat(deliveryData.location_sum_delivery),  // Required
+    time_difference_delivery: parseFloat(deliveryData.time_difference_delivery),  // Required
+    region_aoi_product_delivery: parseFloat(deliveryData.region_aoi_product_delivery)  // Required
+};
 
   const allFieldsFilled = Object.values(formData).every(val => val !== '' && val !== null && val !== undefined && !(typeof val === 'number' && isNaN(val)));
   if (!allFieldsFilled) {
@@ -168,31 +169,31 @@ const App = () => {
   const fillSampleData = (type) => {
     if (type === 'pickup') {
       setPickupData({
-        pickup_distance_km: '4.35478',
+        pickup_distance_km: '18.35478',
         pickup_hour: '14',
-        accept_time_hour: '13',
-        time_diff: '15.6'
+        accept_time_hour: '8',
+        time_diff: '10.6'
       });
     } else {
-      setDeliveryData({
-          order_id: '3014923',
-          region_id: '10',
-          city: '0',
-          courier_id: '3605',
-          lng: '108.71630',
-          lat: '30.90315',
-          aoi_id: ' 50',
-          aoi_type: '14',
-          accept_gps_lng: '108.71812',
-          accept_gps_lat: '30.95610',
-          delivery_gps_lng: '108.71580',
-          delivery_gps_lat: '30.90385',
-          ds: '2450',
-          delivery_day: '15',
-          delivery_hour: '14',
-          delivery_weekday: '3',
-          delivery_weekend: '0'
-      });
+        setDeliveryData({
+      order_id: '3014923',
+      region_id: '10',
+      courier_id: '3605',
+      lng: '108.71630',
+      lat: '30.90315',
+      aoi_id: '50',
+      aoi_type: '14',
+      accept_gps_lng: '108.71812',
+      accept_gps_lat: '30.95610',
+      delivery_gps_lng: '108.71580',
+      delivery_gps_lat: '30.90385',
+      ds: '2450',
+      delivery_day: '15',
+      delivery_hour: '14',
+      location_sum_delivery: '55', // Will calculate this below
+      time_difference_delivery: '20', // Will calculate this below
+      region_aoi_product_delivery: '10' // Will calculate this below
+    });
     }
   };
 
@@ -257,21 +258,20 @@ const App = () => {
                 <label>Region ID</label>
                 <input type="number" value={data.region_id} onChange={(e) => onChange('region_id', e.target.value)} />
               </div>
-              <div className="form-group">
-                <label>City</label>
-                <input
-                  type="number"
-                  min="0"
-                  max="3"
-                  step="1"
-                  value={data.city}
-                  onChange={(e) => onChange('city', parseInt(e.target.value))}
-                />
-              </div>
+              
               <div className="form-group">
                 <label>Courier ID</label>
                 <input type="number" value={data.courier_id} onChange={(e) => onChange('courier_id', e.target.value)} />
               </div>
+              <div className="form-group">
+        <label>Region AOI Product Delivery</label>
+        <input
+          type="number"
+          value={data.region_aoi_product_delivery}
+           onChange={(e) => onChange('region_aoi_product_delivery', e.target.value)}
+        />
+
+            </div>
             </div>
 
             <div className="form-grid">
@@ -324,8 +324,8 @@ const App = () => {
 
             <div className="form-grid">
               <div className="form-group">
-                <label>Date (ds)</label>
-                <input type="date" value={data.ds} onChange={(e) => onChange('ds', e.target.value)} />
+                <label>ds</label>
+                <input type="number" value={data.ds} onChange={(e) => onChange('ds', e.target.value)} />
               </div>
               <div className="form-group">
                 <label>Delivery Day</label>
@@ -335,14 +335,24 @@ const App = () => {
                 <label>Delivery Hour</label>
                 <input type="number" value={data.delivery_hour} onChange={(e) => onChange('delivery_hour', e.target.value)} />
               </div>
+              
               <div className="form-group">
-                <label>Delivery Weekday (0=Mon, 6=Sun)</label>
-                <input type="number" value={data.delivery_weekday} onChange={(e) => onChange('delivery_weekday', e.target.value)} />
-              </div>
-              <div className="form-group">
-                <label>Delivery Weekend (0 or 1)</label>
-                <input type="number" value={data.delivery_weekend} onChange={(e) => onChange('delivery_weekend', e.target.value)} />
-              </div>
+              <label>Location Sum Delivery</label>
+    <input
+      type="number"
+      value={data.location_sum_delivery}
+      onChange={(e) => onChange('location_sum_delivery', e.target.value)}
+    />
+  </div>
+  <div className="form-group">
+        <label>Time Difference Delivery</label>
+        <input
+          type="number"
+          value={data.time_difference_delivery}
+         onChange={(e) => onChange('time_difference_delivery', e.target.value)}
+        />
+     </div>
+      
             </div>
           </>
         ) : (
@@ -398,7 +408,7 @@ const App = () => {
               {result.success ? 'Predicted Time' : 'Prediction Error'}
             </div>
             <div className="result-value">
-              {result.success ? `${result.value} minutes` : result.error}
+              {result.success ? `${result.value} hours` : result.error}
             </div>
           </div>
         )}
