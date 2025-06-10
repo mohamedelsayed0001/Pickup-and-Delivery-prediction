@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pickup & Delivery Prediction</title>
+</head>
+<body>
+    <h2>Pickup Prediction</h2>
+    <form method="post" action="/api/predict-pickup/">
+        {% csrf_token %}
+        <input name="courier_id_pickup" placeholder="Courier ID"><br>
+        <input name="lng_pickup" placeholder="Longitude"><br>
+        <input name="lat_pickup" placeholder="Latitude"><br>
+        <input name="aoi_type_pickup" placeholder="AOI Type"><br>
+        <input name="pickup_gps_lng_pickup" placeholder="GPS Longitude"><br>
+        <input name="pickup_gps_lat_pickup" placeholder="GPS Latitude"><br>
+        <input name="accept_time_utc_pickup" placeholder="Accept Time UTC"><br>
+        <input name="time_window_start_utc_pickup" placeholder="Start Time"><br>
+        <input name="time_window_end_utc_pickup" placeholder="End Time"><br>
+        <button type="submit">Predict Pickup</button>
+    </form>
+
+    <h2>Delivery Prediction</h2>
+    <form method="post" action="/api/predict-delivery/">
+        {% csrf_token %}
+        <input name="courier_id_delivery" placeholder="Courier ID"><br>
+        <input name="lng_delivery" placeholder="Longitude"><br>
+        <input name="lat_delivery" placeholder="Latitude"><br>
+        <input name="aoi_type_delivery" placeholder="AOI Type"><br>
+        <input name="delivery_gps_lng" placeholder="GPS Longitude"><br>
+        <input name="delivery_gps_lat" placeholder="GPS Latitude"><br>
+        <input name="accept_time_utc_delivery" placeholder="Accept Time UTC"><br>
+        <input name="time_window_start_utc_delivery" placeholder="Start Time"><br>
+        <input name="time_window_end_utc_delivery" placeholder="End Time"><br>
+        <button type="submit">Predict Delivery</button>
+    </form>
+</body>
+</html>
