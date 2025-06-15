@@ -11,9 +11,10 @@ pickup_model = joblib.load(os.path.join(BASE_DIR, 'ml_models/pickup_model_lightg
 delivery_model = joblib.load(os.path.join(BASE_DIR, 'ml_models/delivery_model_linearsvr.pkl'))
 
 def home(request):
-    return render(request, "form.html")
+    return render(request, 'form.html')
 
-class PickupPrediction(APIView):
+
+class PredictPickup(APIView):
     def post(self, request):
         try:
             data = request.data
@@ -33,7 +34,7 @@ class PickupPrediction(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=400)
 
-class DeliveryPrediction(APIView):
+class PredictDelivery(APIView):
     def post(self, request):
         try:
             data = request.data

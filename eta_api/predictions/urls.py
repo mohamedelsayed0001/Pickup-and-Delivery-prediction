@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import PredictPickup, PredictDelivery
+from .views import PredictPickup, PredictDelivery, home
 
 urlpatterns = [
     path('', home, name='home'),
